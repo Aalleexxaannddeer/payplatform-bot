@@ -1,5 +1,5 @@
 // ⚠️ ЗАМЕНИТЕ НА ВАШ URL APPS SCRIPT
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaccX0PinIF_lZZH_w_ixzvxGPoFPaU17-LomeMCMcxQufuXR_AEx572h0s_Urjdpv/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHQnduDN1rCYTg5kxnj2C10xSZiW4DneyblFVEurc-m1gHXCWiaB_lMqJhJpAG29PY/exec';
 
 exports.handler = async (event, context) => {
   // Разрешаем только POST
