@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оплата доступа</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      image-rendering: pixelated;
+    }
+    
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .pixel-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #e94560 0%, #0f3460 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      border: 4px solid #fff;
+      box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    h1 {
+      font-size: 18px;
+      color: #e94560;
+      text-shadow: 3px 3px 0 #0f3460;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    
+    .subtitle {
+      font-size: 10px;
+      color: #94a3b8;
+      line-height: 1.8;
+    }
+    
+    .channel-info {
+      text-align: center;
+      padding: 20px;
+      background: rgba(15, 52, 96, 0.5);
+      border: 2px solid #0f3460;
+      margin-bottom: 30px;
+    }
+    
+    .channel-title {
+      font-size: 14px;
+      color: #e94560;
+      margin-bottom: 10px;
+    }
+    
+    .tariff-card {
+      background: #0f3460;
+      border: 4px solid #16213e;
+      padding: 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    
+    .tariff-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 0 rgba(233, 69, 96, 0.3);
+    }
+    
+    .tariff-card.selected {
+      border-color: #e94560;
+    }
+    
+    .tariff-badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: #e94560;
+      color: #fff;
+      padding: 4px 12px;
+      font-size: 8px;
+      border: 2px solid #fff;
+    }
+    
+    .tariff-title {
+      font-size: 12px;
+      color: #e94560;
+      margin-bottom: 15px;
+    }
+    
+    .tariff-price {
+      font-size: 24px;
+      color: #fff;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 0 #000;
+    }
+    
+    .tariff-period {
+      font-size: 10px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+    }
+    
+    .tariff-features {
+      list-style: none;
+      font-size: 9px;
+      line-height: 2;
+    }
+    
+    .tariff-features li::before {
+      content: '✓ ';
+      color: #e94560;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 10px;
+      color: #e94560;
+      margin-bottom: 10px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 16px;
+      background: #0f3460;
+      border: 4px solid #16213e;
+      color: #fff;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 10px;
+      outline: none;
+    }
+    
+    input:focus {
+      border-color: #e94560;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(135deg, #e94560 0%, #c73650 100%);
+      border: 4px solid #fff;
+      color: #fff;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid #ef4444;
+      padding: 16px;
+      margin-bottom: 20px;
+      font-size: 10px;
+      display: none;
+    }
+    
+    .error.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="pixel-icon">🔒</div>
+      <h1>Закрытый канал</h1>
+      <p class="subtitle">Эксклюзивный контент</p>
+    </div>
+    
+    <div class="channel-info">
+      <div class="channel-title" id="channelTitle">Загрузка...</div>
+    </div>
+    
+    <div id="tariffs"></div>
+    
+    <div class="form-group">
+      <label>📧 Email для чека</label>
+      <input type="email" id="email" placeholder="your@email.com" required>
+    </div>
+    
+    <div class="error" id="error"></div>
+    
+    <button class="btn" id="payBtn" onclick="handlePayment()">
+      💳 Выберите тариф
+    </button>
+  </div>
+  
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.ready();
+    
+    let selectedTariff = null;
+    let channelData = null;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const channelId = urlParams.get('channel');
+    
+    async function init() {
+      if (!channelId) {
+        showError('Канал не указан');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`https://script.google.com/macros/s/ВАШ_ID_ИЗ_APPS_SCRIPT/exec?action=get_channel&channel=${channelId}`);
+        channelData = await response.json();
+        
+        document.getElementById('channelTitle').textContent = channelData.title || 'Канал';
+        renderTariffs();
+      } catch (e) {
+        showError('Ошибка загрузки');
+      }
+    }
+    
+    function renderTariffs() {
+      const container = document.getElementById('tariffs');
+      container.innerHTML = '';
+      
+      if (channelData.price_once > 0) {
+        container.appendChild(createTariffCard(
+          '💎 Разовый доступ',
+          `${channelData.price_once} ₽`,
+          'навсегда',
+          ['Полный доступ', 'Без платежей', 'Одноразово'],
+          'once'
+        ));
+      }
+      
+      if (channelData.price_sub > 0) {
+        container.appendChild(createTariffCard(
+          '🔄 Подписка',
+          `${channelData.price_sub} ₽`,
+          'в месяц',
+          ['Полный доступ', 'Отмена anytime', 'Автосписание'],
+          'sub',
+          'ПОПУЛЯРНО'
+        ));
+      }
+    }
+    
+    function createTariffCard(title, price, period, features, type, badge) {
+      const card = document.createElement('div');
+      card.className = 'tariff-card';
+      card.onclick = () => selectTariff(type, card);
+      
+      let html = '';
+      if (badge) html += `<div class="tariff-badge">${badge}</div>`;
+      html += `
+        <div class="tariff-title">${title}</div>
+        <div class="tariff-price">${price}</div>
+        <div class="tariff-period">${period}</div>
+        <ul class="tariff-features">
+          ${features.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+      `;
+      
+      card.innerHTML = html;
+      return card;
+    }
+    
+    function selectTariff(type, card) {
+      selectedTariff = type;
+      document.querySelectorAll('.tariff-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      updatePayButton();
+    }
+    
+    function updatePayButton() {
+      const btn = document.getElementById('payBtn');
+      if (!selectedTariff) {
+        btn.textContent = '💳 Выберите тариф';
+        btn.disabled = true;
+        return;
+      }
+      const price = selectedTariff === 'once' ? channelData.price_once : channelData.price_sub;
+      btn.textContent = `💳 Оплатить ${price} ₽`;
+      btn.disabled = false;
+    }
+    
+    async function handlePayment() {
+      const email = document.getElementById('email').value.trim();
+      
+      if (!selectedTariff) {
+        showError('Выберите тариф');
+        return;
+      }
+      if (!email || !email.includes('@')) {
+        showError('Введите email');
+        return;
+      }
+      
+      const btn = document.getElementById('payBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Создаём платёж...';
+      
+      try {
+        const response = await fetch('https://script.google.com/macros/s/ВАШ_ID_ИЗ_APPS_SCRIPT/exec?type=api&action=create_payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel_id: channelId,
+            access_type: selectedTariff,
+            email: email,
+            telegram_id: tg.initDataUnsafe.user.id
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'ok' && data.payment_url) {
+          window.location.href = data.payment_url;
+        } else {
+          throw new Error(data.error || 'Ошибка');
+        }
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = '💳 Попробовать снова';
+        showError(e.message);
+      }
+    }
+    
+    function showError(message) {
+      const errorDiv = document.getElementById('error');
+      errorDiv.textContent = message;
+      errorDiv.classList.add('active');
+      setTimeout(() => errorDiv.classList.remove('active'), 5000);
+    }
+    
+    init();
+  </script>
+</body>
+</html>
